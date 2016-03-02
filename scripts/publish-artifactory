@@ -3,4 +3,4 @@ ARTIFACTORY_URL=$1
 
 sbt -Dsbt.override.publish.repos.release=$ARTIFACTORY_URL/general \
     -Dsbt.override.publish.repos.snapshot=$ARTIFACTORY_URL/general-snapshots \
-    "set credentials in Global += Credentials(Path.userHome / \".artifactory_credentials\")" "publish"
+    "set credentials in Global += Credentials(Path.userHome / \".artifactory_credentials\")" "+publish"

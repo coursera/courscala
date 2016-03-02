@@ -20,10 +20,13 @@ import sbt.Keys._
 import sbt._
 
 object Courscala extends Build with OverridablePublishSettings {
+  val currentScalaVersion = "2.11.6"
+  val supportedScalaVersions = Seq("2.10.5", currentScalaVersion)
   override lazy val settings = super.settings ++ overridePublishSettings ++
     Seq(
       organization := "org.coursera",
-      scalaVersion := "2.11.6")
+      scalaVersion := currentScalaVersion,
+      crossScalaVersions := supportedScalaVersions)
 
   lazy val courscala = (project in file("courscala"))
     .settings(settings: _*)

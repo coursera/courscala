@@ -1,2 +1,2 @@
 #!/bin/bash
-sbt publishM2
+sbt "+publishLocal"

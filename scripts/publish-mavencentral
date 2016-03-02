@@ -1,3 +1,3 @@
 #!/bin/bash
 # Publish to Maven
-sbt publish-signed
+sbt "+publish-signed"
