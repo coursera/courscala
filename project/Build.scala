@@ -22,7 +22,7 @@ import sbt._
 object Courscala extends Build with OverridablePublishSettings {
   override lazy val settings = super.settings ++ overridePublishSettings ++
     Seq(
-      organization := "org.coursera.common",
+      organization := "org.coursera",
       scalaVersion := "2.11.6")
 
   lazy val courscala = (project in file("courscala"))
