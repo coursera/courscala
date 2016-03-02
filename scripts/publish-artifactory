@@ -1,4 +1,10 @@
 #!/bin/bash
+if [ -z $1 ]
+  then
+    echo "Usage: publish-artifactory <artifactory_url> (e.g. https://example.org/artifactory)"
+    exit 1
+fi
+
 ARTIFACTORY_URL=$1
 
 sbt -Dsbt.override.publish.repos.release=$ARTIFACTORY_URL/general \
