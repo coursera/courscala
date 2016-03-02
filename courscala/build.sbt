@@ -1,5 +1,5 @@
 import Dependencies._
 
-name := "core"
+name := "courscala"
 
 libraryDependencies ++= Seq(Scalatest.scalatest, JUnit.junit)
