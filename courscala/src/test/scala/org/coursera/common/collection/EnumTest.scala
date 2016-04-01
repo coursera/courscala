@@ -99,6 +99,11 @@ object Color extends collection.Enum[Color] {
   case object Red extends Color
   case object Amber extends Color
   case object Green extends Color
+
+  /**
+   * Regression test for bug in [[Enum.withName]] failing on non-[[EnumSymbol]] `object`s.
+   */
+  object Unrelated
 }
 
 object Container {

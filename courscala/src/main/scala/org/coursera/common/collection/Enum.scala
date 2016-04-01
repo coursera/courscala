@@ -74,8 +74,9 @@ trait Enum[SymbolType <: EnumSymbol] { self =>
     } else {
       symbolType.getDeclaredClasses
     }
-    subclasses.map { c =>
-      CompanionReflector.findCompanionInstanceOfCompanionClass(c.asInstanceOf[Class[SymbolType]])
+    subclasses.collect {
+      case c if symbolType.isAssignableFrom(c) =>
+        CompanionReflector.findCompanionInstanceOfCompanionClass(c.asInstanceOf[Class[SymbolType]])
     }.collect {
       // Due to type erasure we can't check that the symbols are actually of
       // type SymbolType at runtime.
