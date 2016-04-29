@@ -20,11 +20,10 @@ import org.coursera.common.collection
 import org.coursera.common.collection.Container.Direction
 import org.junit.Test
 import org.scalatest.junit.AssertionsForJUnit
-import org.scalatest.junit.JUnitSuite
 
 import scala.collection.immutable.SortedSet
 
-class EnumTest extends JUnitSuite with AssertionsForJUnit {
+class EnumTest extends AssertionsForJUnit {
 
   @Test
   def withName(): Unit = {

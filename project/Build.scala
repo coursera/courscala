@@ -20,8 +20,10 @@ import sbt.Keys._
 import sbt._
 
 object Courscala extends Build with OverridablePublishSettings {
+
   val currentScalaVersion = "2.11.6"
   val supportedScalaVersions = Seq("2.10.5", currentScalaVersion)
+
   override lazy val settings = super.settings ++ overridePublishSettings ++
     Seq(
       organization := "org.coursera",
@@ -36,4 +38,5 @@ object Courscala extends Build with OverridablePublishSettings {
     .settings(packagedArtifacts := Map.empty) // disable publish for root aggregate module
 
   override def defaultPublishSettings: Seq[Def.Setting[_]] = Sonatype.Settings
+
 }

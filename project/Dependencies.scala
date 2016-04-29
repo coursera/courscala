@@ -18,9 +18,15 @@ import sbt._
 import Keys._
 
 object Dependencies {
+
   object Scala {
     val version = "2.11.6"
     val scalaReflect = "org.scala-lang" % "scala-reflect" % version
+  }
+
+  object PlayJson {
+    val version = "2.4.4"
+    val playJson = "com.typesafe.play" %% "play-json" % version
   }
 
   object Scalatest {
@@ -28,8 +34,9 @@ object Dependencies {
     val scalatest = "org.scalatest" %% "scalatest" % version % "test"
   }
 
-  object JUnit {
-    val version = "4.11"
-    val junit = "junit" % "junit" % version % "test"
+  object JUnitInterface {
+    val version = "0.11"
+    val junitInterface = "com.novocode" % "junit-interface" % version % "test"
   }
+
 }

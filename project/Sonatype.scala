@@ -33,7 +33,7 @@ object Sonatype {
     pomIncludeRepository := { _ => false },
 
     pomExtra := {
-      <url>http://github.com/coursera/courier</url>
+      <url>http://github.com/coursera/courscala</url>
         <licenses>
           <license>
             <name>Apache 2.0</name>
