@@ -16,6 +16,8 @@
 
 package org.coursera.common.stringkey
 
+import java.util.UUID
+
 import org.coursera.common.collection.Enum
 import org.coursera.common.collection.EnumSymbol
 import org.junit.Test
@@ -142,6 +144,16 @@ class StringKeyFormatTest extends AssertionsForJUnit {
     val key = StringKey("Amber")
     val parsed = Color.stringKeyFormat.reads(key)
     assert(parsed === Some(Color.Amber))
+  }
+
+  @Test
+  def testUuidFormat(): Unit = {
+    val uuid1 = UUID.randomUUID()
+
+    val stringKey = StringKey(uuid1)
+    val decoded = stringKey.asOpt[UUID]
+
+    assert(decoded.get === uuid1)
   }
 
 }
