@@ -16,6 +16,10 @@
 
 package org.coursera.common.stringkey
 
+import java.nio.ByteBuffer
+import java.util.Base64
+import java.util.UUID
+
 import org.coursera.common.collection.Enum
 import org.coursera.common.collection.EnumSymbol
 
@@ -163,6 +167,8 @@ sealed trait CommonStringKeyFormats extends DefaultTupleFormats {
 
   implicit val shortFormat: StringKeyFormat[Short] = PrimitiveFormat(_.toShort)
 
+  implicit val uuidFormat: StringKeyFormat[UUID] = UuidFormat
+
 }
 
 private case class PrimitiveFormat[T](from: String => T, to: T => String = (t: T) => t.toString)
@@ -175,4 +181,29 @@ private case class PrimitiveFormat[T](from: String => T, to: T => String = (t: T
   }
 
   override def writes(t: T): StringKey = StringKey(to(t))
+}
+
+private case object UuidFormat extends StringKeyFormat[UUID] {
+
+  override def reads(key: StringKey): Option[UUID] = {
+    Try {
+      val bytes = Base64.getUrlDecoder.decode(key.key)
+      require(bytes.length == 16, "Incorrect length")
+
+      val byteBuffer = ByteBuffer.wrap(bytes)
+      val msb = byteBuffer.getLong
+      val lsb = byteBuffer.getLong
+
+      new UUID(msb, lsb)
+    }.toOption
+  }
+
+  override def writes(uuid: UUID): StringKey = {
+    val bytes = ByteBuffer.allocate(16)
+      .putLong(uuid.getMostSignificantBits)
+      .putLong(uuid.getLeastSignificantBits)
+      .array()
+    StringKey(Base64.getUrlEncoder.withoutPadding().encodeToString(bytes))
+  }
+
 }
