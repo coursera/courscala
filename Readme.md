@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/coursera/courscala.svg)](https://travis-ci.org/coursera/courscala)
+
 # Courscala
 
 Core Scala classes used to build Coursera.
