@@ -48,6 +48,22 @@ object Sonatype {
         </scm>
         <developers>
           <developer>
+            <id>saeta</id>
+            <name>Brennan Saeta</name>
+          </developer>
+          <developer>
+            <id>danchia</id>
+            <name>Daniel Chia</name>
+          </developer>
+          <developer>
+            <id>josh-newman</id>
+            <name>Josh Newman</name>
+          </developer>
+          <developer>
+            <id>nickdella</id>
+            <name>Nick Dellamaggiore</name>
+          </developer>
+          <developer>
             <id>jpbetz</id>
             <name>Joe Betz</name>
           </developer>
