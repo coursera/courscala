@@ -24,6 +24,7 @@ import org.coursera.common.collection.Enum
 import org.coursera.common.collection.EnumSymbol
 
 import scala.annotation.implicitNotFound
+import scala.reflect.ClassTag
 import scala.util.Try
 
 /**
@@ -147,6 +148,28 @@ object StringKeyFormat extends CommonStringKeyFormats {
         case _ => None
       },
       key => StringKey((prefix, key)))
+  }
+
+  object Implicits {
+
+    implicit class OrFormat[T](baseFormat: StringKeyFormat[T]) {
+
+      def orFormat[U <: T](
+          implicit uFormat: StringKeyFormat[U],
+          classTag: ClassTag[U]): StringKeyFormat[T] = {
+
+        def reads(stringKey: StringKey): Option[T] = {
+          stringKey.asOpt[U].orElse(baseFormat.reads(stringKey))
+        }
+
+        def writes(obj: T): StringKey = obj match {
+          case u: U => StringKey(u)
+          case _ => baseFormat.writes(obj)
+        }
+
+        StringKeyFormat(reads, writes)
+      }
+    }
   }
 
 }
