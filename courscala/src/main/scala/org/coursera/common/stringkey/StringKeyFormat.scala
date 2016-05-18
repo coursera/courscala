@@ -150,6 +150,12 @@ object StringKeyFormat extends CommonStringKeyFormats {
       key => StringKey((prefix, key)))
   }
 
+  def unimplementedFormat[T]: StringKeyFormat[T] = {
+    StringKeyFormat(
+      _ => None,
+      _ => throw new UnsupportedOperationException("Writes not implemented"))
+  }
+
   object Implicits {
 
     implicit class OrFormat[T](baseFormat: StringKeyFormat[T]) {
