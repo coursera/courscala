@@ -150,6 +150,21 @@ object StringKeyFormat extends CommonStringKeyFormats {
       key => StringKey((prefix, key)))
   }
 
+  /**
+   * Useful for defining a StringKeyFormat for empty case classes or case objects based on some
+   * constant string. Should NEVER be used for non-empty case classes.
+   *
+   * Given a `typeName` and a `canonical` representation of the object, will map
+   * StringKey(typeName) <==> `canonical`
+   */
+  def typedEmptyStringFormat[T](
+      typeName: String,
+      canonical: => T): StringKeyFormat[T] = {
+    StringKeyFormat(
+      _.asOpt[String].filter(_ == typeName).map(_ => canonical),
+      _ => StringKey(typeName))
+  }
+
   def unimplementedFormat[T]: StringKeyFormat[T] = {
     StringKeyFormat(
       _ => None,
