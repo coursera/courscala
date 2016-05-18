@@ -28,6 +28,7 @@ import org.joda.time.Instant
 import scala.annotation.implicitNotFound
 import scala.reflect.ClassTag
 import scala.util.Try
+import scala.collection.immutable
 
 /**
  * Conversion from [[T]] to [[StringKey]] for use in datastores, URLs, etc. The format must
@@ -235,6 +236,24 @@ sealed trait CommonStringKeyFormats extends DefaultTupleFormats {
   implicit val instantFormat: StringKeyFormat[Instant] =
     StringKeyFormat.delegateFormat[Instant, Long](millis => Some(new Instant(millis)), _.getMillis)
 
+  /**
+   * Defines a StringKeyFormat for an immutable Sequence. WARNING: SLIGHTLY INCORRECT.
+   *
+   * In particular, this seqFormat does not correctly handle the case when an element can be
+   * serialized to the empty string.
+   */
+  implicit def seqFormat[T](implicit format: StringKeyFormat[T]):
+    StringKeyFormat[immutable.Seq[T]] = SeqFormat[T](",")
+
+  /**
+   * Defines a StringKeyFormat for an immutable Set. WARNING: SLIGHTLY INCORRECT.
+   *
+   * In particular, this setFormat does not correctly handle the case when an element can be
+   * serialized to the empty string.
+   */
+  implicit def setFormat[T](implicit format: StringKeyFormat[T]):
+    StringKeyFormat[Set[T]] = SetFormat[T](",")
+
 }
 
 private case class PrimitiveFormat[T](from: String => T, to: T => String = (t: T) => t.toString)
@@ -272,4 +291,86 @@ private case object UuidFormat extends StringKeyFormat[UUID] {
     StringKey(Base64.getUrlEncoder.withoutPadding().encodeToString(bytes))
   }
 
+}
+
+
+/**
+ * Modified from [[TupleFormats.Tuple2Format]].
+ */
+private case class SeqFormat[T](separator: String)(implicit format: StringKeyFormat[T])
+  extends StringKeyFormat[immutable.Seq[T]] {
+
+  private[this] val splitRegex = s"(?<!\\!)$separator".r  // uses negative lookbehind
+
+  private[this] def escapeSeparator(s: String) = s.replace(s"$separator", s"!$separator")
+  private[this] def unescapeSeparator(s: String) = s.replace(s"!$separator", s"$separator")
+
+  /**
+   * Behavior is undefined if there are empty string representations of keys.
+   */
+  override def reads(key: StringKey): Option[immutable.Seq[T]] = {
+    if (key.key.isEmpty) {
+      Some(List.empty)
+    } else {
+      val items = splitRegex.split(key.key).map {
+        case "" => None
+        case item => format.reads(StringKey(unescapeSeparator(item)))
+      }.toList
+
+      if (items.forall(_.nonEmpty)) {
+        Some(items.flatten)
+      } else {
+        None
+      }
+    }
+  }
+
+  override def writes(seq: immutable.Seq[T]): StringKey = {
+    val string = seq.map { item =>
+      escapeSeparator(format.writes(item).key)
+    }.mkString(",")
+
+    StringKey(string)
+  }
+}
+
+/**
+ * Represents sets in a canonical manner by ascii-sorting the string representation of the elements.
+ *
+ * Similar to [[SeqFormat]]
+ */
+private case class SetFormat[T](separator: String)(implicit format: StringKeyFormat[T])
+  extends StringKeyFormat[Set[T]] {
+  private[this] val splitRegex = s"(?<!\\!)$separator".r  // uses negative lookbehind
+
+  private[this] def escapeSeparator(s: String) = s.replace(s"$separator", s"!$separator")
+  private[this] def unescapeSeparator(s: String) = s.replace(s"!$separator", s"$separator")
+
+  /**
+   * Behavior is undefined if there are empty string representations of keys.
+   */
+  override def reads(key: StringKey): Option[Set[T]] = {
+    if (key.key.isEmpty) {
+      Some(Set.empty)
+    } else {
+      val items = splitRegex.split(key.key).map {
+        case "" => None
+        case item: String => format.reads(StringKey(unescapeSeparator(item)))
+      }.toList
+
+      if (items.forall(_.nonEmpty)) {
+        Some(items.flatten.toSet)
+      } else {
+        None
+      }
+    }
+  }
+
+  override def writes(set: Set[T]): StringKey = {
+    val string = set.map { item =>
+      escapeSeparator(format.writes(item).key)
+    }.toList.sorted.mkString(",")
+
+    StringKey(string)
+  }
 }
