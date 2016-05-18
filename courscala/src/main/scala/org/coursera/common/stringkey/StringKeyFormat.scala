@@ -165,6 +165,18 @@ object StringKeyFormat extends CommonStringKeyFormats {
       _ => StringKey(typeName))
   }
 
+  /**
+   * Useful for defining a StringKeyFormat for case classes that inherit from a common parent
+   * trait.
+   */
+  def typedCaseFormat[T, U](
+      typeName: String,
+      apply: U => T,
+      unapply: T => Option[U])
+      (implicit otherFormat: StringKeyFormat[U]): StringKeyFormat[T] = {
+    prefixFormat(typeName, caseClassFormat(apply, unapply))
+  }
+
   def unimplementedFormat[T]: StringKeyFormat[T] = {
     StringKeyFormat(
       _ => None,
