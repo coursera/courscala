@@ -22,6 +22,8 @@ import java.util.UUID
 
 import org.coursera.common.collection.Enum
 import org.coursera.common.collection.EnumSymbol
+import org.joda.time.DateTime
+import org.joda.time.Instant
 
 import scala.annotation.implicitNotFound
 import scala.reflect.ClassTag
@@ -224,6 +226,14 @@ sealed trait CommonStringKeyFormats extends DefaultTupleFormats {
   implicit val shortFormat: StringKeyFormat[Short] = PrimitiveFormat(_.toShort)
 
   implicit val uuidFormat: StringKeyFormat[UUID] = UuidFormat
+
+  implicit val dateTimeFormat: StringKeyFormat[DateTime] = {
+    StringKeyFormat.delegateFormat[DateTime, Long](
+      millis => Some(new DateTime(millis)), _.getMillis)
+  }
+
+  implicit val instantFormat: StringKeyFormat[Instant] =
+    StringKeyFormat.delegateFormat[Instant, Long](millis => Some(new Instant(millis)), _.getMillis)
 
 }
 
