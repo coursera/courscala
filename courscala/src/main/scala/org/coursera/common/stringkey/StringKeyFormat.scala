@@ -54,8 +54,7 @@ trait StringKeyFormat[T] {
 
 object StringKeyFormat extends CommonStringKeyFormats {
 
-  implicit val stringKeyStringKeyFormat: StringKeyFormat[StringKey] =
-    delegateFormat[StringKey, StringKey](key => Some(key), identity _)
+  implicit val stringKeyStringKeyFormat: StringKeyFormat[StringKey] = apply(Some(_), identity)
 
   def apply[T](from: StringKey => Option[T], to: T => StringKey): StringKeyFormat[T] = {
     new StringKeyFormat[T] {

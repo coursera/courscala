@@ -28,6 +28,17 @@ class StringKeyFormatTest extends AssertionsForJUnit {
   import StringKeyFormatTest._
 
   @Test
+  def testStringKeyRead(): Unit = {
+    assert(Some(StringKey("test")) ===
+      StringKeyFormat.stringKeyStringKeyFormat.reads(StringKey("test")))
+  }
+
+  @Test
+  def testStringKeyWrite(): Unit = {
+    assert(StringKey("test") === StringKeyFormat.stringKeyStringKeyFormat.writes(StringKey("test")))
+  }
+
+  @Test
   def testPrefixWrite(): Unit = {
     val format = StringKeyFormat.prefixFormat[String]("pre", implicitly[StringKeyFormat[String]])
     assert(format.writes("hello") === StringKey("pre~hello"))
