@@ -119,7 +119,7 @@ class StringKeyFormatTest extends AssertionsForJUnit {
   @Test
   def nestedTuples(): Unit = {
     val data = (("abd123", "asdf"), ("aDO_-", "asdf123"))
-    val dataConvertedAndBack = format22.reads(StringKey(StringKey(data).key))
+    val dataConvertedAndBack = format22.reads(StringKey(StringKey.toStringKey(data).key))
 
     assert(dataConvertedAndBack.get === data)
   }
@@ -161,7 +161,7 @@ class StringKeyFormatTest extends AssertionsForJUnit {
   def testUuidFormat(): Unit = {
     val uuid1 = UUID.randomUUID()
 
-    val stringKey = StringKey(uuid1)
+    val stringKey = StringKey.toStringKey(uuid1)
     val decoded = stringKey.asOpt[UUID]
 
     assert(decoded.get === uuid1)

@@ -149,7 +149,7 @@ object StringKeyFormat extends CommonStringKeyFormats {
         case Some((`prefix`, key)) => Some(key)
         case _ => None
       },
-      key => StringKey((prefix, key)))
+      key => StringKey.toStringKey((prefix, key)))
   }
 
   /**
@@ -198,7 +198,7 @@ object StringKeyFormat extends CommonStringKeyFormats {
         }
 
         def writes(obj: T): StringKey = obj match {
-          case u: U => StringKey(u)
+          case u: U => StringKey.toStringKey(u)
           case _ => baseFormat.writes(obj)
         }
 

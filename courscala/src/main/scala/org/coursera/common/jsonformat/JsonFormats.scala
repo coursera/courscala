@@ -202,7 +202,7 @@ object JsonFormats {
 
       OWrites { typeKeyedMap: Map[K, V] =>
         val jsMap = typeKeyedMap.map { case (typeKey, value) =>
-          StringKey(typeKey).key -> Json.toJson(value)
+          StringKey.toStringKey(typeKey).key -> Json.toJson(value)
         }
         JsObject(jsMap.toList)
       }
