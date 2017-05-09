@@ -36,8 +36,11 @@ object StringKey {
 
   implicit val format: Format[StringKey] = JsonFormats.caseClassFormat(apply, unapply)
 
+  @deprecated(message = "This is just confusing.", since = "2017-04-05")
   def unapply(key: String): Some[StringKey] = Some(StringKey(key))
 
+  @deprecated(message = "Use [[toStringKey]] instead.", since = "2017-04-05")
   def apply[T: StringKeyFormat](t: T): StringKey = implicitly[StringKeyFormat[T]].writes(t)
+  def toStringKey[T: StringKeyFormat](t: T): StringKey = implicitly[StringKeyFormat[T]].writes(t)
 
 }
