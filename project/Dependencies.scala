@@ -25,8 +25,13 @@ object Dependencies {
   }
 
   object PlayJson {
-    val version = "2.4.4"
+    val version = "2.6.2"
     val playJson = "com.typesafe.play" %% "play-json" % version
+  }
+
+  object PlayJsonJoda {
+    val version = "2.6.2"
+    val playJsonJoda = "com.typesafe.play" %% "play-json-joda" % version
   }
 
   object Scalatest {

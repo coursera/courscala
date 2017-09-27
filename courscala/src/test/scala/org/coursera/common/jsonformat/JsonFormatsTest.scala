@@ -72,6 +72,7 @@ class JsonFormatsTest extends AssertionsForJUnit {
 
   @Test
   def dateTime(): Unit = {
+    import JsonFormats.Implicits.dateTimeFormat
     val testDatetime = new DateTime(2010, 1, 1, 0, 0, 0, 0, DateTimeZone.UTC)
     assertResult(JsNumber(1262304000000L))(Json.toJson(testDatetime))
     assertResult(Some(testDatetime))(Json.parse("1262304000000").asOpt[DateTime].map(_.withZone(DateTimeZone.UTC)))

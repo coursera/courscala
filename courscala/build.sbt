@@ -4,6 +4,7 @@ name := "courscala"
 
 libraryDependencies ++= Seq(
   PlayJson.playJson,
+  PlayJsonJoda.playJsonJoda,
   JUnitInterface.junitInterface,
   Scalatest.scalatest)
 
