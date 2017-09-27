@@ -20,7 +20,7 @@ import Keys._
 object Dependencies {
 
   object Scala {
-    val version = "2.11.6"
+    val version = "2.11.11"
     val scalaReflect = "org.scala-lang" % "scala-reflect" % version
   }
 
