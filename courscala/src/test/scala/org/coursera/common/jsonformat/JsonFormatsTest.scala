@@ -20,9 +20,14 @@ import org.coursera.common.collection.Enum
 import org.coursera.common.collection.EnumSymbol
 import org.coursera.common.stringkey.StringKey
 import org.coursera.common.stringkey.StringKeyFormat
+import org.joda.time.DateTime
+import org.joda.time.DateTimeZone
+import org.joda.time.Duration
+import org.joda.time.Instant
 import org.junit.Test
 import org.scalatest.junit.AssertionsForJUnit
 import play.api.libs.json.Format
+import play.api.libs.json.JsNumber
 import play.api.libs.json.JsString
 import play.api.libs.json.JsSuccess
 import play.api.libs.json.Json
@@ -47,6 +52,30 @@ class JsonFormatsTest extends AssertionsForJUnit {
     assertResult(JsString("Green"))(Json.toJson(Color.Green))
   }
 
+  @Test
+  def instant(): Unit = {
+    import JsonFormats.Implicits.instantFormat
+    val testInstant = new Instant(137)
+    assertResult(JsNumber(137))(Json.toJson(testInstant))
+    assertResult(Some(testInstant))(Json.parse("137").asOpt[Instant])
+  }
+
+
+  @Test
+  def duration(): Unit = {
+    import JsonFormats.Implicits.durationFormat
+    val testDuration = Duration.millis(137L)
+    assertResult(JsNumber(137))(Json.toJson(testDuration))
+    assertResult(Some(testDuration))(Json.parse("137").asOpt[Duration])
+  }
+
+
+  @Test
+  def dateTime(): Unit = {
+    val testDatetime = new DateTime(2010, 1, 1, 0, 0, 0, 0, DateTimeZone.UTC)
+    assertResult(JsNumber(1262304000000L))(Json.toJson(testDatetime))
+    assertResult(Some(testDatetime))(Json.parse("1262304000000").asOpt[DateTime].map(_.withZone(DateTimeZone.UTC)))
+  }
 }
 
 object JsonFormatsTest {
