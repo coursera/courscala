@@ -20,9 +20,12 @@ import org.coursera.common.collection.Enum
 import org.coursera.common.collection.EnumSymbol
 import org.coursera.common.stringkey.StringKey
 import org.coursera.common.stringkey.StringKeyFormat
+import org.joda.time.DateTime
 import org.joda.time.Duration
 import org.joda.time.Instant
 import play.api.libs.json.Format
+import play.api.libs.json.JodaReads
+import play.api.libs.json.JodaWrites
 import play.api.libs.json.JsError
 import play.api.libs.json.JsObject
 import play.api.libs.json.JsResult
@@ -177,6 +180,10 @@ object JsonFormats {
         millis => new Instant(millis),
         instant => instant.getMillis)
     }
+
+    implicit val dateTimeFormat: Format[DateTime] = Format(
+      JodaReads.DefaultJodaDateTimeReads,
+      JodaWrites.JodaDateTimeNumberWrites)
 
     implicit def mapReads[K, V](implicit keyFormat: StringKeyFormat[K], valueReads: Reads[V]):
       Reads[Map[K, V]] = {
