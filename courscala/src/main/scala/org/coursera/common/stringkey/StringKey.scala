@@ -43,4 +43,6 @@ object StringKey {
   def apply[T: StringKeyFormat](t: T): StringKey = implicitly[StringKeyFormat[T]].writes(t)
   def toStringKey[T: StringKeyFormat](t: T): StringKey = implicitly[StringKeyFormat[T]].writes(t)
 
+  def stringify[T: StringKeyFormat](t: T): String = implicitly[StringKeyFormat[T]].writes(t).key
+
 }

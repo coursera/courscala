@@ -39,7 +39,7 @@ class JsonFormatsTest extends AssertionsForJUnit {
   @Test
   def stringKey(): Unit = {
     val id = TestId(2, "test")
-    val idString = StringKey.toStringKey(id).key
+    val idString = StringKey.stringify(id)
     assert(JsString(idString) === Json.toJson(id))
     assert(JsSuccess(id) === Json.fromJson[TestId](JsString(idString)))
     assert(JsString(s"invalid stuff $idString").validate[TestId].isError)
