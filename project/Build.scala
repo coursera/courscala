@@ -21,8 +21,8 @@ import sbt._
 
 object Courscala extends Build with OverridablePublishSettings {
 
-  val currentScalaVersion = "2.11.11"
-  val supportedScalaVersions = Seq(currentScalaVersion, "2.12.4")
+  val currentScalaVersion = "2.12.4"
+  val supportedScalaVersions = Seq("2.10.6", "2.11.11", currentScalaVersion)
 
   override lazy val settings = super.settings ++ overridePublishSettings ++
     Seq(
