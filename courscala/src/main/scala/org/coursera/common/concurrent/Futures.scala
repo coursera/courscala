@@ -18,9 +18,11 @@ package org.coursera.common.concurrent
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
+import scala.concurrent.Promise
 import scala.util.Failure
 import scala.util.Success
 import scala.util.Try
+import scala.util.control.NonFatal
 
 object Futures extends FutureExtractors {
 
@@ -29,7 +31,14 @@ object Futures extends FutureExtractors {
    *
    * Returns a successful future if `f` completes or a failed one if `f` throws an exception.
    */
-  def immediate[T](f: => T): Future[T] = Future.fromTry(Try(f))
+  def immediate[T](f: => T): Future[T] = {
+    try {
+      Future.successful(f)
+    } catch {
+      case NonFatal(e) =>
+        Future.failed(e)
+    }
+  }
 
   /**
    * Executes `f` immediately. Returns `f`'s future (either successful or not) if `f` completes
