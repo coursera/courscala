@@ -94,8 +94,17 @@ trait Enum[SymbolType <: EnumSymbol] { self =>
    * @throws NoSuchElementException if no enum symbol is found for the given name
    */
   def withName(name: String): SymbolType = {
-    byName.getOrElse(name, throw new NoSuchElementException(s"No value found for '$name'"))
+    byName
+      .get(name)
+      .orElse(defaultValue)
+      .getOrElse(throw new NoSuchElementException(s"No value found for '$name'"))
   }
+
+  /**
+   * Override to provide a default value when [[withName()]] is called and no element is found
+   * @return
+   */
+  protected def defaultValue: Option[SymbolType] = None
 }
 
 /**
