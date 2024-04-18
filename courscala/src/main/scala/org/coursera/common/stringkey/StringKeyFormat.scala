@@ -90,7 +90,7 @@ object StringKeyFormat extends CommonStringKeyFormats {
       apply: U => T,
       unapply: T => Option[U])
       (implicit otherFormat: StringKeyFormat[U]): StringKeyFormat[T] = {
-    delegateFormat[T, U](apply.andThen(Some.apply), unapply.andThen(_.get))
+    delegateFormat[T, U](u => Try(apply(u)).toOption, unapply.andThen(_.get))
   }
 
   def enumerationFormat(enumeration: Enumeration): StringKeyFormat[enumeration.Value] = {

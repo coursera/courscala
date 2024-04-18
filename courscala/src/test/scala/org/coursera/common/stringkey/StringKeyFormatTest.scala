@@ -167,6 +167,27 @@ class StringKeyFormatTest extends AssertionsForJUnit {
     assert(decoded.get === uuid1)
   }
 
+  @Test
+  def read_caseClassFormat_validReturns_Some(): Unit = {
+    assertResult(Some(TestId("aBaC9"))) {
+      new StringKey("aBaC9").asOpt[TestId]
+    }
+  }
+
+  @Test
+  def read_caseClassFormat_invalidReturns_None(): Unit = {
+    assertResult(None) {
+      new StringKey("").asOpt[TestId]
+    }
+  }
+
+  @Test
+  def write_caseClassFormat_writesId(): Unit = {
+
+    assertResult("aBaC9") {
+      StringKey.stringify(new TestId("aBaC9"))
+    }
+  }
 }
 
 object StringKeyFormatTest {
@@ -184,6 +205,15 @@ object StringKeyFormatTest {
     case object Green extends Color
 
     implicit val stringKeyFormat: StringKeyFormat[Color] = StringKeyFormat.enumFormat(Color)
+
+  }
+
+  case class TestId(value: String) {
+    require(value.nonEmpty, "value must be non-empty")
+  }
+
+  object TestId {
+    implicit val stringKeyFormat: StringKeyFormat[TestId] = StringKeyFormat.caseClassFormat(apply, unapply)
   }
 
 }
