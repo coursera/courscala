@@ -74,7 +74,7 @@ trait Enum[SymbolType <: EnumSymbol] { self =>
     } else {
       symbolType.getDeclaredClasses
     }
-    subclasses.collect {
+    subclasses.toSeq.collect {
       case c if symbolType.isAssignableFrom(c) =>
         CompanionReflector.findCompanionInstanceOfCompanionClass(c.asInstanceOf[Class[SymbolType]])
     }.collect {
@@ -182,7 +182,7 @@ abstract class IndexedEnumSymbol(val id: Int)
  * ```
  */
 trait IndexedEnum[SymbolType <: IndexedEnumSymbol] extends Enum[SymbolType] {
-  lazy val ids: SortedSet[Int] = byId.keys.to(SortedSet)
+  lazy val ids: SortedSet[Int] = SortedSet(byId.keys.toSeq: _*)
 
   /**
    * All the symbols of the enumeration, sorted by id.
@@ -194,7 +194,7 @@ trait IndexedEnum[SymbolType <: IndexedEnumSymbol] extends Enum[SymbolType] {
     // We get "implicit divergent expansion" if we don't make it SortedSet and developers
     // do simple things like `symbols.map(s => s.id -> s)`.
     implicit val ordering: Ordering[SymbolType] = Ordering.by { s: SymbolType => s.id }
-    findSymbols.to(SortedSet)
+    SortedSet(findSymbols.toSeq: _*)(ordering)
   }
 
   private[this] lazy val byId: Map[Int, SymbolType] = {

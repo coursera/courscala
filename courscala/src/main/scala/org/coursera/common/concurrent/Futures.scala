@@ -74,11 +74,11 @@ object Futures extends FutureExtractors {
    * }}}
    */
   def findMatch[T, U](
-      futures: TraversableOnce[Future[T]])
+      futures: scala.collection.immutable.Iterable[Future[T]])
       (pf: PartialFunction[T, U])
       (implicit ec: ExecutionContext): Future[Option[U]] = {
 
-    Future.find(futures)(pf.isDefinedAt).map(_.map(pf))
+    Future.find(futures)(t => pf.isDefinedAt(t)).map(_.map(pf))
   }
 
   def option[T](option: Option[Future[T]])(implicit ec: ExecutionContext): Future[Option[T]] =
@@ -98,7 +98,7 @@ object Futures extends FutureExtractors {
       def toTry(implicit ec: ExecutionContext): Future[Try[T]] = {
         future
           .map(Success.apply)
-          .recover(PartialFunction(Failure.apply))
+          .recover { case e => Failure(e) }
       }
 
     }
