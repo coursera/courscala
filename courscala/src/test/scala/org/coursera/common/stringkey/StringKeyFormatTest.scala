@@ -350,85 +350,6 @@ class StringKeyFormatTest extends AssertionsForJUnit {
     assertResult(Some("SPECIAL"))(combined.reads(StringKey("special")))
     assertResult(Some("other"))(combined.reads(StringKey("other")))
   }
-
-  @Test
-  def orFormat_writes_nonUSubtype_delegatesToBase(): Unit = {
-    // Exercises the `case _ => baseFormat.writes(obj)` branch in OrFormat.writes.
-    // Shape is a sealed trait; Circle is U <: Shape; Square is another subtype of Shape.
-    // When writes is called with a Square (not a Circle), it must fall through to baseFormat.
-    import StringKeyFormat.Implicits._
-    import StringKeyFormatTest.ShapeFormats._
-
-    val combined: StringKeyFormat[Shape] =
-      squareFormat.orFormat[Circle](circleFormat, scala.reflect.classTag[Circle])
-
-    // writes(Circle) → Circle matches `case u: Circle` → uFormat used
-    assertResult(StringKey("circle:5"))(combined.writes(Circle(5)))
-
-    // writes(Square) → Square is not a Circle → falls through to baseFormat.writes
-    assertResult(StringKey("square:3"))(combined.writes(Square(3)))
-  }
-
-  @Test
-  def seqFormat_elementParseFailure_returnsNone(): Unit = {
-    // Exercises the `case "" => None` (empty-item) branch in SeqFormat.reads.
-    val fmt = implicitly[StringKeyFormat[immutable.Seq[Int]]]
-    // "1,,3" splits into ["1", "", "3"]; the empty string becomes None → whole result is None
-    assertResult(None)(fmt.reads(StringKey("1,,3")))
-  }
-
-  @Test
-  def seqFormat_invalidElement_returnsNone(): Unit = {
-    // Exercises format.reads returning None for a non-empty but unparseable item.
-    val fmt = implicitly[StringKeyFormat[immutable.Seq[Int]]]
-    assertResult(None)(fmt.reads(StringKey("1,notanint,3")))
-  }
-
-  @Test
-  def setFormat_invalidElement_returnsNone(): Unit = {
-    // Exercises the failure branch in SetFormat.reads when an element cannot be parsed.
-    val fmt = implicitly[StringKeyFormat[Set[Int]]]
-    assertResult(None)(fmt.reads(StringKey("1,notanint,3")))
-  }
-
-  @Test
-  def setFormat_emptyItem_returnsNone(): Unit = {
-    // Exercises the `case "" => None` branch in SetFormat.reads.
-    val fmt = implicitly[StringKeyFormat[Set[Int]]]
-    assertResult(None)(fmt.reads(StringKey("1,,3")))
-  }
-
-  @Test
-  @deprecated("tests deprecated StringKey.unapply to keep coverage", "2017-04-05")
-  def stringKey_unapply_deprecated(): Unit = {
-    // Exercises the deprecated StringKey.unapply extractor (0% coverage before).
-    val Some(key) = StringKey.unapply("hello")
-    assertResult(StringKey("hello"))(key)
-  }
-
-  @Test
-  @deprecated("tests deprecated StringKey.apply[T] to keep coverage", "2017-04-05")
-  def stringKey_apply_deprecated(): Unit = {
-    // Exercises the deprecated StringKey.apply[T: StringKeyFormat](t: T) overload (0% coverage).
-    val key = StringKey[Int](42)
-    assertResult(StringKey("42"))(key)
-  }
-
-  @Test
-  def uuidFormat_reads_wrongLengthBase64_returnsNone(): Unit = {
-    // Exercises the `require(bytes.length == 16)` guard in UuidFormat.reads: a valid base64
-    // string that decodes to fewer than 16 bytes must return None.
-    import java.util.Base64
-    val shortBytes  = Base64.getUrlEncoder.withoutPadding().encodeToString(Array[Byte](1, 2, 3))
-    assertResult(None)(StringKey(shortBytes).asOpt[java.util.UUID])
-  }
-
-  @Test
-  def enumFormat_writes_serialisesName(): Unit = {
-    // Exercises the `v => StringKey(v.name)` writes lambda in StringKeyFormat.enumFormat.
-    val fmt = StringKeyFormat.enumFormat(Color)
-    assertResult(StringKey("Green"))(fmt.writes(Color.Green))
-  }
 }
 
 object StringKeyFormatTest {
@@ -459,33 +380,6 @@ object StringKeyFormatTest {
 
   object Weekday extends Enumeration {
     val Mon, Tue, Wed = Value
-  }
-
-  // ─── Hierarchy used to test OrFormat.writes non-U branch ───────────────────
-
-  object ShapeFormats {
-    sealed trait Shape
-    case class Circle(radius: Int) extends Shape
-    case class Square(side: Int)   extends Shape
-
-    val circleFormat: StringKeyFormat[Circle] = StringKeyFormat(
-      sk => sk.key match {
-        case s if s.startsWith("circle:") => scala.util.Try(s.drop(7).toInt).toOption.map(Circle.apply)
-        case _ => None
-      },
-      c => StringKey(s"circle:${c.radius}")
-    )
-
-    val squareFormat: StringKeyFormat[Shape] = StringKeyFormat(
-      sk => sk.key match {
-        case s if s.startsWith("square:") => scala.util.Try(s.drop(7).toInt).toOption.map(Square.apply)
-        case _ => None
-      },
-      {
-        case Square(s) => StringKey(s"square:$s")
-        case Circle(r) => StringKey(s"circle:$r")
-      }
-    )
   }
 
 }

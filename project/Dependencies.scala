@@ -52,4 +52,8 @@ object Dependencies {
     val version = "0.11"
     val junitInterface = "com.novocode" % "junit-interface" % version % "test"
   }
+
+  object ScalatestPlusJUnit {
+    val scalatestPlusJunit = "org.scalatestplus" %% "junit-4-13" % "3.2.19.0" % "test"
+  }
 }
