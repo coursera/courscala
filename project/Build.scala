@@ -14,29 +14,5 @@
  * limitations under the License.
  */
 
-import sbt.Build
-import sbt.Def
-import sbt.Keys._
-import sbt._
-
-object Courscala extends Build with OverridablePublishSettings {
-
-  val currentScalaVersion = "2.12.4"
-  val supportedScalaVersions = Seq("2.10.6", "2.11.11", currentScalaVersion)
-
-  override lazy val settings = super.settings ++ overridePublishSettings ++
-    Seq(
-      organization := "org.coursera",
-      scalaVersion := currentScalaVersion,
-      crossScalaVersions := supportedScalaVersions)
-
-  lazy val courscala = (project in file("courscala"))
-    .settings(settings: _*)
-
-  lazy val root = (project in file("."))
-    .aggregate(courscala)
-    .settings(packagedArtifacts := Map.empty) // disable publish for root aggregate module
-
-  override def defaultPublishSettings: Seq[Def.Setting[_]] = Sonatype.Settings
-
-}
+// This file is intentionally left minimal. Project definitions have moved to build.sbt.
+// SBT 1.x removed the Build trait; project hierarchy is now defined in build.sbt directly.

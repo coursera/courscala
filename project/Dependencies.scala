@@ -19,12 +19,12 @@ import Keys._
 
 object Dependencies {
   object PlayJson {
-    val version = "2.6.7"
+    val version = "2.9.4"
     val playJson = "com.typesafe.play" %% "play-json" % version
   }
 
   object PlayJsonJoda {
-    val version = "2.6.7"
+    val version = "2.9.4"
     val playJsonJoda = "com.typesafe.play" %% "play-json-joda" % version
   }
 

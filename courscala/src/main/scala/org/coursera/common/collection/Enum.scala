@@ -81,7 +81,7 @@ trait Enum[SymbolType <: EnumSymbol] { self =>
       // Due to type erasure we can't check that the symbols are actually of
       // type SymbolType at runtime.
       case t: EnumSymbol => t.asInstanceOf[SymbolType]
-    }.to[Set]
+    }.toSet
   }
 
   private[this] lazy val byName = symbols.map { s => s.name -> s }.toMap
@@ -182,7 +182,7 @@ abstract class IndexedEnumSymbol(val id: Int)
  * ```
  */
 trait IndexedEnum[SymbolType <: IndexedEnumSymbol] extends Enum[SymbolType] {
-  lazy val ids: SortedSet[Int] = byId.keys.to[SortedSet]
+  lazy val ids: SortedSet[Int] = byId.keys.to(SortedSet)
 
   /**
    * All the symbols of the enumeration, sorted by id.
@@ -193,12 +193,12 @@ trait IndexedEnum[SymbolType <: IndexedEnumSymbol] extends Enum[SymbolType] {
     // TODO(jbetz): Can we safely make the declared return type SortedSet[SymbolType] here?
     // We get "implicit divergent expansion" if we don't make it SortedSet and developers
     // do simple things like `symbols.map(s => s.id -> s)`.
-    implicit val ordering = Ordering.by { s: SymbolType => s.id }
-    findSymbols.to[SortedSet]
+    implicit val ordering: Ordering[SymbolType] = Ordering.by { s: SymbolType => s.id }
+    findSymbols.to(SortedSet)
   }
 
   private[this] lazy val byId: Map[Int, SymbolType] = {
-    symbols.toSet[SymbolType].map { s =>
+    symbols.toSet.map { s: SymbolType =>
       s.id -> s
     }.toMap
   }
