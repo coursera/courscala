@@ -73,6 +73,7 @@ object Futures extends FutureExtractors {
    *   }.map(_.toInt)
    * }}}
    */
+  // Note: `immutable.Iterable` is required by `Future.find` in Scala 2.13 (was `TraversableOnce` in 2.12).
   def findMatch[T, U](
       futures: scala.collection.immutable.Iterable[Future[T]])
       (pf: PartialFunction[T, U])
