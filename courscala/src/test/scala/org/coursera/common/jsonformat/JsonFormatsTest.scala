@@ -27,8 +27,10 @@ import org.joda.time.Instant
 import org.junit.Test
 import org.scalatestplus.junit.AssertionsForJUnit
 import play.api.libs.json.Format
+import play.api.libs.json.JsError
 import play.api.libs.json.JsNull
 import play.api.libs.json.JsNumber
+import play.api.libs.json.JsObject
 import play.api.libs.json.JsString
 import play.api.libs.json.JsSuccess
 import play.api.libs.json.Json
@@ -174,6 +176,41 @@ class JsonFormatsTest extends AssertionsForJUnit {
     val json = Json.obj("a" -> 1, "b" -> 2)
     val pruned = (__ \ "b").json.prune.withRootPath.reads(json)
     assertResult(JsSuccess(Json.obj("a" -> 1)))(pruned)
+  }
+
+  @Test
+  def withRootPath_preservesFailure(): Unit = {
+    // Exercises the `otherwise` branch in withRootPath — a failing Reads must pass through as-is.
+    import JsonFormats.Implicits.ReadsPathMethods
+    val failingReads: Reads[Int] = Reads(_ => JsError("always fails")).withRootPath
+    assert(failingReads.reads(Json.obj("x" -> 1)).isError)
+  }
+
+  @Test
+  def mapReads_invalidKeyFails(): Unit = {
+    // Exercises the JsError branch in mapReads when a JSON key cannot be parsed as K.
+    // TestId requires non-empty part2; "~" alone yields an empty second component → None from reads.
+    import JsonFormats.Implicits.mapReads
+    val reads = implicitly[Reads[Map[TestId, Int]]]
+    // JSON keys are strings; "notAnId" won't parse as (Int, String) via TestId's StringKeyFormat
+    val json = Json.obj("notAnId" -> 1)
+    assert(reads.reads(json).isError)
+  }
+
+  @Test
+  def mapFormat_roundtrip(): Unit = {
+    import JsonFormats.Implicits.mapFormat
+    val fmt = implicitly[play.api.libs.json.OFormat[Map[String, Int]]]
+    val m = Map("a" -> 1, "b" -> 2)
+    assertResult(JsSuccess(m))(fmt.reads(fmt.writes(m)))
+  }
+
+  @Test
+  def enumFormat_reads_invalidValue_returnsError(): Unit = {
+    // Exercises the JsError orElse branch in enumFormat.reads (Enum[T] variant) — the
+    // `jsTry(enum.withName(name))` fails and orElse returns JsError.
+    val fmt = JsonFormats.enumFormat(Color)
+    assert(fmt.reads(JsString("Purple")).isError)
   }
 
   @Test
