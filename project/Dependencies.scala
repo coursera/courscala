@@ -44,7 +44,8 @@ object Dependencies {
   }
 
   object ScalatestPlusJUnit {
-    val scalatestPlusJunit = "org.scalatestplus" %% "junit-4-13" % "3.2.19.0" % "test"
+    val version = "3.2.19.0"
+    val scalatestPlusJunit = "org.scalatestplus" %% "junit-4-13" % version % "test"
   }
 
   object JUnitInterface {
