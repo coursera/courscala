@@ -18,16 +18,18 @@ package org.coursera.common.concurrent
 
 import org.junit.Test
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.junit.AssertionsForJUnit
+import org.scalatestplus.junit.AssertionsForJUnit
 import org.scalatest.time.Millis
 import org.scalatest.time.Seconds
 import org.scalatest.time.Span
 
 import scala.concurrent.Future
+import scala.util.Failure
+import scala.util.Success
 
 class FuturesTest extends AssertionsForJUnit with ScalaFutures {
 
-  implicit override val patienceConfig =
+  implicit override val patienceConfig: PatienceConfig =
     PatienceConfig(timeout = scaled(Span(1, Seconds)), interval = scaled(Span(20, Millis)))
 
   import scala.concurrent.ExecutionContext.Implicits.global
@@ -46,6 +48,79 @@ class FuturesTest extends AssertionsForJUnit with ScalaFutures {
 
     assertResult(1)(future1.futureValue)
     assertResult(2)(future2.futureValue)
+  }
+
+  @Test
+  def extract_tuple3(): Unit = {
+    val Futures.Extract(f1, f2, f3) = Futures.immediate((1, "hello", true))
+    assertResult(1)(f1.futureValue)
+    assertResult("hello")(f2.futureValue)
+    assertResult(true)(f3.futureValue)
+  }
+
+  @Test
+  def immediate_success(): Unit = {
+    assertResult(42)(Futures.immediate(42).futureValue)
+  }
+
+  @Test
+  def immediate_exception(): Unit = {
+    val ex = new RuntimeException("boom")
+    val fut = Futures.immediate[Int](throw ex)
+    assertResult(ex)(fut.failed.futureValue)
+  }
+
+  @Test
+  def safelyCall_success(): Unit = {
+    assertResult(1)(Futures.safelyCall(Future.successful(1)).futureValue)
+  }
+
+  @Test
+  def safelyCall_exception(): Unit = {
+    val ex = new RuntimeException("boom")
+    val fut = Futures.safelyCall[Int](throw ex)
+    assertResult(ex)(fut.failed.futureValue)
+  }
+
+  @Test
+  def findMatch_found(): Unit = {
+    val futures = List(Future.successful("hello"), Future.successful("world"))
+    val result = Futures.findMatch(futures) { case s if s.startsWith("w") => s.length }
+    assertResult(Some(5))(result.futureValue)
+  }
+
+  @Test
+  def findMatch_notFound(): Unit = {
+    val futures = List(Future.successful("hello"), Future.successful("world"))
+    val result = Futures.findMatch(futures) { case s if s.startsWith("z") => s.length }
+    assertResult(None)(result.futureValue)
+  }
+
+  @Test
+  def option_some(): Unit = {
+    val result = Futures.option(Some(Future.successful(42)))
+    assertResult(Some(42))(result.futureValue)
+  }
+
+  @Test
+  def option_none(): Unit = {
+    val result = Futures.option(None: Option[Future[Int]])
+    assertResult(None)(result.futureValue)
+  }
+
+  @Test
+  def toTry_success(): Unit = {
+    import Futures.Implicits._
+    val result = Future.successful(42).toTry
+    assertResult(Success(42))(result.futureValue)
+  }
+
+  @Test
+  def toTry_failure(): Unit = {
+    import Futures.Implicits._
+    val ex = new RuntimeException("boom")
+    val result = Future.failed[Int](ex).toTry
+    assertResult(Failure(ex))(result.futureValue)
   }
 
 }

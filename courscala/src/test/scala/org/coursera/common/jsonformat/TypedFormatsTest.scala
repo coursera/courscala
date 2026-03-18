@@ -17,7 +17,7 @@
 package org.coursera.common.jsonformat
 
 import org.junit.Test
-import org.scalatest.junit.AssertionsForJUnit
+import org.scalatestplus.junit.AssertionsForJUnit
 import play.api.libs.json.Json
 import play.api.libs.json.OFormat
 
@@ -46,6 +46,23 @@ class TypedFormatsTest extends AssertionsForJUnit {
       "definition" -> Json.obj("a" -> 1))
 
     assertResult(expectedJs)(writes.writes(T1(1)))
+  }
+
+  @Test
+  def typedDefinitionFormat_roundtrip(): Unit = {
+    // Exercises the combined OFormat entry point (typedDefinitionFormat) which was
+    // previously at 0% coverage because tests only called reads/writes directly.
+    val fmt = TypedFormats.typedDefinitionFormat("T1", format1)
+    val original = T1(99)
+    val json = fmt.writes(original)
+    assertResult(Some(original))(fmt.reads(json).asOpt)
+  }
+
+  @Test
+  def typedDefinitionFormat_wrongTypeName_returnsError(): Unit = {
+    val fmt = TypedFormats.typedDefinitionFormat("T1", format1)
+    val jsonForT2 = TypedFormats.typedDefinitionFormat("T2", format2).writes(T2(5))
+    assert(fmt.reads(jsonForT2).isError)
   }
 
 }

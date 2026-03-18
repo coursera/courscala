@@ -9,6 +9,7 @@ libraryDependencies ++= Seq(
   JodaConvert.jodaConvert,
   JUnitInterface.junitInterface,
   Scalatest.scalatest,
+  ScalatestPlusJUnit.scalatestPlusJunit,
   "org.scala-lang" % "scala-reflect" % scalaVersion.value)
 
 testFrameworks := Seq(sbt.TestFrameworks.JUnit)

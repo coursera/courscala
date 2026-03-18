@@ -17,7 +17,7 @@
 package org.coursera.common.jsonformat
 
 import org.junit.Test
-import org.scalatest.junit.AssertionsForJUnit
+import org.scalatestplus.junit.AssertionsForJUnit
 import play.api.libs.json.Json
 import play.api.libs.json.OFormat
 
@@ -46,6 +46,39 @@ class FlatTypedFormatsTest extends AssertionsForJUnit {
     assertResult(expectedJs)(writes.writes(T1(1)))
   }
 
+  @Test
+  def flatTypedDefinitionFormat_roundtrip(): Unit = {
+    // Exercises the combined OFormat entry point (flatTypedDefinitionFormat) which was
+    // previously at 0% coverage because tests only called reads/writes directly.
+    val fmt = FlatTypedFormats.flatTypedDefinitionFormat("T1", format1)
+    val original = T1(42)
+    val json = fmt.writes(original)
+    assertResult(Some(original))(fmt.reads(json).asOpt)
+  }
+
+  @Test
+  def flatTypedDefinitionFormat_wrongTypeName_returnsError(): Unit = {
+    val fmt = FlatTypedFormats.flatTypedDefinitionFormat("T1", format1)
+    val jsonForT2 = FlatTypedFormats.flatTypedDefinitionFormat("T2", format2).writes(T2(7))
+    assert(fmt.reads(jsonForT2).isError)
+  }
+
+  @Test
+  def flatTypedDefinitionWrites_modelWithTypeName_throws(): Unit = {
+    // Exercises the require() guard in flatTypedDefinitionWrites: a model whose JSON
+    // serialisation already contains a "typeName" key must be rejected.
+    import play.api.libs.json.JsString
+    import play.api.libs.json.JsObject
+    import play.api.libs.json.OWrites
+
+    // Manually write an OWrites that always produces {"typeName": "collision"}
+    val clashingWrites: OWrites[Unit] = OWrites[Unit](_ => JsObject(Map("typeName" -> JsString("collision"))))
+
+    val writes = FlatTypedFormats.flatTypedDefinitionWrites("T", clashingWrites)
+    intercept[IllegalArgumentException] {
+      writes.writes(())
+    }
+  }
 
 }
 

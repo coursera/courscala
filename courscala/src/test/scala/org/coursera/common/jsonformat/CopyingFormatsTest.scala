@@ -17,9 +17,10 @@
 package org.coursera.common.jsonformat
 
 import org.junit.Test
-import org.scalatest.junit.AssertionsForJUnit
+import org.scalatestplus.junit.AssertionsForJUnit
 import play.api.libs.json.JsSuccess
 import play.api.libs.json.Json
+import play.api.libs.json.OFormat
 import play.api.libs.json.Reads
 
 class CopyingFormatsTest extends AssertionsForJUnit {
@@ -37,6 +38,24 @@ class CopyingFormatsTest extends AssertionsForJUnit {
   def readOld(): Unit = {
     assertResult(JsSuccess(NewType("", "", 1))) {
       Json.fromJson[NewType](Json.obj("oldField" -> "", "unrelated" -> 1))
+    }
+  }
+
+  @Test
+  def copyingFormat_writes(): Unit = {
+    val fmt = CopyingFormats.copyingFormat(Json.format[NewType], "oldField" -> "newField")
+    val obj = NewType("hi", "old", 1)
+    assertResult(Json.toJson(obj)(Json.writes[NewType]))(fmt.writes(obj))
+  }
+
+  @Test
+  def copyingOFormat_roundtrip(): Unit = {
+    val fmt: OFormat[NewType] = CopyingFormats.copyingOFormat(Json.format[NewType], "oldField" -> "newField")
+    assertResult(JsSuccess(NewType("hi", "", 1))) {
+      fmt.reads(Json.obj("newField" -> "hi", "oldField" -> "", "unrelated" -> 1))
+    }
+    assertResult(JsSuccess(NewType("", "", 1))) {
+      fmt.reads(Json.obj("oldField" -> "", "unrelated" -> 1))
     }
   }
 

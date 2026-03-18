@@ -19,7 +19,7 @@ package org.coursera.common.jsonformat
 import org.coursera.common.stringkey.StringKey
 import org.coursera.common.stringkey.StringKeyFormat
 import org.junit.Test
-import org.scalatest.junit.AssertionsForJUnit
+import org.scalatestplus.junit.AssertionsForJUnit
 import play.api.libs.json.Json
 
 class JsonFormatsMapFormatTest extends AssertionsForJUnit {

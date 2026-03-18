@@ -19,7 +19,7 @@ package org.coursera.common.collection
 import org.coursera.common.collection
 import org.coursera.common.collection.Container.Direction
 import org.junit.Test
-import org.scalatest.junit.AssertionsForJUnit
+import org.scalatestplus.junit.AssertionsForJUnit
 
 import scala.collection.immutable.SortedSet
 
@@ -70,6 +70,12 @@ class EnumTest extends AssertionsForJUnit {
 
     assertResult(Indexed.One.id)(1)
     assertResult(Indexed(1))(Indexed.One)
+  }
+
+  @Test
+  def defaultValue(): Unit = {
+    assertResult(ColorWithDefault.Unknown)(ColorWithDefault.withName("nonexistent"))
+    assertResult(ColorWithDefault.Red)(ColorWithDefault.withName("Red"))
   }
 
   @Test
@@ -137,4 +143,12 @@ sealed abstract class AliasedIndexed(id: Int, name: String)
 object AliasedIndexed extends IndexedEnum[AliasedIndexed] {
   case object Zero extends AliasedIndexed(0, "zero")
   case object One extends AliasedIndexed(1, "one")
+}
+
+sealed trait ColorWithDefault extends EnumSymbol
+
+object ColorWithDefault extends collection.Enum[ColorWithDefault] {
+  case object Red extends ColorWithDefault
+  case object Unknown extends ColorWithDefault
+  override protected def defaultValue: Option[ColorWithDefault] = Some(Unknown)
 }
